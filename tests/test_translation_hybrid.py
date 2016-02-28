@@ -2,6 +2,7 @@ import pytest
 import sqlalchemy as sa
 from flexmock import flexmock
 from sqlalchemy.dialects.postgresql import HSTORE
+from sqlalchemy.orm import aliased
 
 from sqlalchemy_utils import i18n, TranslationHybrid  # noqa
 
@@ -131,3 +132,9 @@ class TestTranslationHybrid(object):
         session.commit()
         dct = session.query(City.name).first()._asdict()
         assert dct['name'] == 'Tukholma'
+
+    def test_aliased_entities(self, session, City):
+        # Ensure that queried entities are taken from the alias
+        CityAlias = aliased(City)
+        query_str = str(session.query(CityAlias.name))
+        assert query_str.endswith('FROM city AS city_1')

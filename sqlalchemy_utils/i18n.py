@@ -97,9 +97,13 @@ class TranslationHybrid(object):
 
     def expr_factory(self, attr, prop):
         def expr(cls):
+            cls_attr = getattr(cls, attr.key)
             current_locale = cast_locale_expr(cls, self.current_locale)
             default_locale = cast_locale_expr(cls, self.default_locale)
-            ret = sa.func.coalesce(attr[current_locale], attr[default_locale])
+            ret = sa.func.coalesce(
+                cls_attr[current_locale],
+                cls_attr[default_locale]
+            )
             try:
                 label = [k for k, v in vars(cls).items() if v is prop][0]
             except IndexError:
